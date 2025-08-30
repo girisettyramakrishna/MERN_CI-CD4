@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DOCKER_COMPOSE_FILE = 'docker-compose.yml'
-        PROJECT_NAME = 'mern-job-portal'
     }
 
     stages {

@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'master',
-                    url: 'https://github.com/girisettyramakrishna/MERN_CI-CD3.git'
+                    url: 'https://github.com/girisettyramakrishna/MERN_CI-CD4.git'
             }
         }
 

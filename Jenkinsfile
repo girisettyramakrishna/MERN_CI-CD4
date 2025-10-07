@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         DOCKER_COMPOSE_FILE = 'docker-compose.yml'
-        PATH = "/usr/local/bin:/usr/bin:/bin"
-        K8S_NAMESPACE = 'default'
         K8S_MANIFEST = 'k8s-deployment.yml'
-        DOCKERHUB_USERNAME = 'girisettyramakrishna8c'
+        K8S_NAMESPACE = 'default'
+        PATH = "/usr/local/bin:/usr/bin:/bin"
+        DOCKERHUB_USERNAME = 'girisettyramakrishna8' // Change as needed
     }
 
     stages {
@@ -32,6 +32,7 @@ pipeline {
             steps {
                 echo '🚀 Determining deployment method...'
                 script {
+                    // Check if Kubernetes is available
                     def k8sAvailable = sh(
                         script: 'command -v kubectl && kubectl cluster-info >/dev/null 2>&1 && echo "true" || echo "false"',
                         returnStdout: true
@@ -40,11 +41,15 @@ pipeline {
                     if (k8sAvailable == 'true') {
                         echo '📡 Kubernetes detected! Deploying to K8s cluster...'
 
-                        // Create namespace if it does not exist
+                        // Tag Docker images and push to Docker Hub
                         sh """
-                           export PATH=${PATH}
+                           docker-compose -f ${DOCKER_COMPOSE_FILE} images | awk 'NR>1 {print \$1":"\$2}' | \
+                           xargs -I {} docker tag {} ${DOCKERHUB_USERNAME}/{} && docker push ${DOCKERHUB_USERNAME}/{}
+                        """
+
+                        // Create namespace if not exists and apply manifests
+                        sh """
                            kubectl get namespace ${K8S_NAMESPACE} >/dev/null 2>&1 || kubectl create namespace ${K8S_NAMESPACE}
-                           docker-compose -f ${DOCKER_COMPOSE_FILE} images | awk 'NR>1 {print \$1":"\$2}' | xargs -I {} docker tag {} ${DOCKERHUB_USERNAME}/{} && docker push ${DOCKERHUB_USERNAME}/{}
                            kubectl apply -f ${K8S_MANIFEST} -n ${K8S_NAMESPACE}
                            kubectl rollout status deployment/mern-frontend -n ${K8S_NAMESPACE}
                            kubectl rollout status deployment/mern-backend -n ${K8S_NAMESPACE}
@@ -52,7 +57,6 @@ pipeline {
                     } else {
                         echo '🐳 Kubernetes not detected. Deploying via Docker Compose...'
                         sh """
-                           export PATH=${PATH}
                            docker-compose -f ${DOCKER_COMPOSE_FILE} down
                            docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
                         """

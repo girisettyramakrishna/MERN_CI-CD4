@@ -6,7 +6,7 @@ pipeline {
         PATH = "/usr/local/bin:/usr/bin:/bin"
         K8S_NAMESPACE = 'default'
         K8S_MANIFEST = 'k8s-deployment.yml'
-        DOCKERHUB_USERNAME = 'your-dockerhub-username'
+        DOCKERHUB_USERNAME = 'girisettyramakrishna8c'
     }
 
     stages {

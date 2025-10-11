@@ -1,7 +1,7 @@
 # Step 1: Build React app
 FROM node:18-alpine AS build
 
-# install bash (vite run చేయడానికి అవసరం అవుతుంది)
+# install bash 
 RUN apk add --no-cache bash
 
 WORKDIR /app
@@ -12,7 +12,7 @@ RUN npm install
 
 COPY . .
 
-# vite కి execute permissions ఇవ్వాలి
+
 RUN chmod +x node_modules/.bin/vite
 
 # build React app
